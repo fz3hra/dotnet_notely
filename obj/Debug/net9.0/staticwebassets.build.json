@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "4rop5E8qAfG9ZVFooG5vd9qdfM8tS4a+rP6ZhxvFHz4=",
+  "Source": "dotnet_notely",
+  "BasePath": "_content/dotnet_notely",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

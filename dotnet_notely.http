@@ -1,0 +1,6 @@
+@dotnet_notely_HostAddress = http://localhost:5033
+
+GET {{dotnet_notely_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
