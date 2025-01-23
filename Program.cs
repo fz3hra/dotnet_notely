@@ -21,6 +21,7 @@ builder.Services.AddIdentityCore<ApiUser>().AddRoles<IdentityRole>().AddEntityFr
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped<IAuthManager, AuthManager>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
 builder.Services.AddAuthentication(options =>
 {

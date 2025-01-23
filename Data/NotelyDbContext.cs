@@ -10,10 +10,16 @@ public class NotelyDbContext: IdentityDbContext<ApiUser>
     {
         
     }
+    
+    public DbSet<Note> Notes { get; set; }
+    public DbSet<UserNote> UserNotes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new NoteConfiguration());
+        modelBuilder.ApplyConfiguration(new UserNoteConfiguration());
+        
     }
 }
