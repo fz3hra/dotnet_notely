@@ -1,8 +1,12 @@
+using System.Security.Claims;
 using AutoMapper;
 using dotnet_notely.Contracts;
 using dotnet_notely.Data;
 using dotnet_notely.ModelDtos.NoteDtos;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace dotnet_notely.Repository;
 
@@ -19,15 +23,19 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         this._userManager = manager;
     }
 
-    /*
-     * TODO::
-     * create note only if authenticated.
-     * if username not found then throw an error
-     */
-    public async Task<NoteResponseDto> CreateNote(CreateNoteDto note)
+    public async Task<NoteResponseDto> CreateNote(CreateNoteDto note, HttpContext context)
     {
+        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        var user = await _userManager.FindByEmailAsync(userEmail);
+
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+        
         var mapNote =  _mapper.Map<Note>(note);
-        // does not need to crate manually, since mapper does it automatically
+        mapNote.CreatedBy = user.Id;  
         var result = await _context.Notes.AddAsync(mapNote);
         await _context.SaveChangesAsync();
         
@@ -36,7 +44,6 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         {
             foreach (var username in note.SharedUsersId)
             {
-                var user = await _userManager.FindByNameAsync(username);
                 if (user != null)
                 {
                     await _context.UserNotes.AddAsync(new UserNote 
@@ -52,10 +59,27 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         return _mapper.Map<NoteResponseDto>(mapNote);
     }
     
-    
-// TODO
-    public Task<NoteResponseDto> GetNote(GetNoteDto note)
+    public async Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext)
     {
-        throw new NotImplementedException();
+        var userEmail = httpContext.User.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.Email || c.Type == JwtRegisteredClaimNames.Email)?.Value;
+        
+        var user = await _userManager.FindByEmailAsync(userEmail);
+    
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+
+        var notes = await _context.Notes.ToListAsync();
+        var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == user.Id).ToList();
+
+        
+        if (notes == null)
+        {
+            throw new Exception("No notes found");
+        }
+        
+        return _mapper.Map<List<NoteResponseDto>>(createdUserNotes);
     }
 }

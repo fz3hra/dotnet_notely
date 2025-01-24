@@ -6,9 +6,9 @@ namespace dotnet_notely.Contracts;
 public interface INoteRepository: IGenericManager<Note>
 {
     // create note
-    Task<NoteResponseDto> CreateNote(CreateNoteDto note);
+    Task<NoteResponseDto> CreateNote(CreateNoteDto note, HttpContext httpContext);
     //get note
-    Task<NoteResponseDto> GetNote(GetNoteDto note);
+    Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext);
     //update note
     // delete note
 }

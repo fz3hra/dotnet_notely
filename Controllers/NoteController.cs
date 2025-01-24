@@ -1,12 +1,15 @@
+using System.Security.Claims;
 using dotnet_notely.Contracts;
 using dotnet_notely.Data;
 using dotnet_notely.ModelDtos.NoteDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_notely.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize] 
 public class NoteController: ControllerBase
 {
     private readonly INoteRepository _noteRepository;
@@ -23,8 +26,18 @@ public class NoteController: ControllerBase
     {
         try 
         {
-            var result = await _noteRepository.CreateNote(note);
+            var userMail = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userMail))
+            {
+                return Unauthorized();
+            }
+            
+            var result = await _noteRepository.CreateNote(note, HttpContext);
             return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
         }
         catch (Exception ex)
         {
@@ -32,11 +45,11 @@ public class NoteController: ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpGet]
     [Route("getNotes")]
     public async Task<IActionResult> GetNote(GetNoteDto note)
     {
-        var result = await _noteRepository.GetNote(note);
+        var result = await _noteRepository.GetNote(note, HttpContext);
         if (result == null)
         {
             return NotFound();
