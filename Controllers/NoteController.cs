@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace dotnet_notely.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notes")]
 [Authorize] 
 public class NoteController: ControllerBase
 {
@@ -21,7 +21,6 @@ public class NoteController: ControllerBase
     
     // create note:
     [HttpPost]
-    [Route("createNote")]
     public async Task<IActionResult> CreateNote(CreateNoteDto note)
     {
         try 
@@ -46,7 +45,6 @@ public class NoteController: ControllerBase
     }
 
     [HttpGet]
-    [Route("getNotes")]
     public async Task<IActionResult> GetNote(GetNoteDto note)
     {
         var result = await _noteRepository.GetNote(note, HttpContext);
