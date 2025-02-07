@@ -12,7 +12,7 @@ public class NotelyDbContext: IdentityDbContext<ApiUser>
     }
     
     public DbSet<Note> Notes { get; set; }
-    public DbSet<UserNote> UserNotes { get; set; }
+    public DbSet<NoteShare> NoteShares { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

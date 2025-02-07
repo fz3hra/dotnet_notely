@@ -9,6 +9,10 @@ public interface INoteRepository: IGenericManager<Note>
     Task<NoteResponseDto> CreateNote(CreateNoteDto note, HttpContext httpContext);
     //get note
     Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext);
-    //update note
+    //update note - allow to make changes and allow for shared user to also make changes - then implement live changes
+    Task<bool> UpdateNote(UpdateNoteDto note, HttpContext httpContext); 
     // delete note
+    Task<bool> DeleteNote(int id, HttpContext httpContext);
+    // delete one or multiple note
+    
 }

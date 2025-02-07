@@ -160,3 +160,7 @@
 /Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/bin/Debug/net9.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 /Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/bin/Debug/net9.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll
 /Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/obj/Debug/net9.0/dotnet_notely.sourcelink.json
+/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/bin/Debug/net9.0/Newtonsoft.Json.dll
+/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/bin/Debug/net9.0/System.Net.WebSockets.WebSocketProtocol.dll
+/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/bin/Debug/net9.0/dotnet_notely.staticwebassets.runtime.json
+/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/obj/Debug/net9.0/compressed/dj46pwvrpp-j7j7vqf4qi.gz

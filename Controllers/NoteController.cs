@@ -54,4 +54,27 @@ public class NoteController: ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpPatch]
+    public async Task<IActionResult> UpdateNote(UpdateNoteDto note)
+    {
+        var result = await _noteRepository.UpdateNote(note, HttpContext);
+        if (!result)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
+    
+    [HttpDelete]
+    // [HttpDelete("{id}")] 
+    public async Task<IActionResult> DeleteNote(DeleteNoteDto deleteDto)
+    {
+        var result = await _noteRepository.DeleteNote(deleteDto.Id, HttpContext);
+        if (!result)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
 }

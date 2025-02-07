@@ -51,9 +51,12 @@ public class AuthManager : IAuthManager
         {
             return null;
         }
+        
+        bool isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+        if (!isPasswordValid) return null;
       
             // generate token then return data response.
-            var token = await generateToken(user);
+            var token = await GenerateToken(user);
             return new AuthResponseDto
             {
                 UserId=user.Id, Token=token
@@ -61,7 +64,7 @@ public class AuthManager : IAuthManager
     }
 
     // generate token for user:
-    private async Task<string> generateToken(ApiUser user)
+    private async Task<string> GenerateToken(ApiUser user)
     {
         // create signing key
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
@@ -79,10 +82,11 @@ public class AuthManager : IAuthManager
         // generate new Claims:
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        }.Union(userClaims).Union(userClaims);
+        }.Union(userClaims).Union(roleClaims);
         
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],

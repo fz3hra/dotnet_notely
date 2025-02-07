@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace dotnet_notely.Data;
 
-public class UserNote
+public class NoteShare
 {
     [Key]
     public int Id { get; set; }

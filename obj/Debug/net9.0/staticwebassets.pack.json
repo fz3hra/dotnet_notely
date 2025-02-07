@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.build.dotnet_notely.props",
+      "PackagePath": "build\\dotnet_notely.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildMultiTargeting.dotnet_notely.props",
+      "PackagePath": "buildMultiTargeting\\dotnet_notely.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildTransitive.dotnet_notely.props",
+      "PackagePath": "buildTransitive\\dotnet_notely.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.dotnet_notely.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.dotnet_notely.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
