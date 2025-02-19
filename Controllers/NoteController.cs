@@ -9,8 +9,8 @@ namespace dotnet_notely.Controllers;
 
 [ApiController]
 [Route("api/notes")]
-[Authorize] 
-public class NoteController: ControllerBase
+[Authorize]
+public class NoteController : ControllerBase
 {
     private readonly INoteRepository _noteRepository;
 
@@ -18,20 +18,21 @@ public class NoteController: ControllerBase
     {
         this._noteRepository = noteRepository;
     }
-    
+
     // create note:
     [HttpPost]
     public async Task<IActionResult> CreateNote(CreateNoteDto note)
     {
-        try 
+        try
         {
-            var userMail = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userMail))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+
             {
                 return Unauthorized();
             }
-            
-            var result = await _noteRepository.CreateNote(note, HttpContext);
+
+            var result = await _noteRepository.CreateNote(note, userId);
             return Ok(result);
         }
         catch (UnauthorizedAccessException ex)
@@ -47,7 +48,13 @@ public class NoteController: ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetNote(GetNoteDto note)
     {
-        var result = await _noteRepository.GetNote(note, HttpContext);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+
+        {
+            return Unauthorized();
+        }
+        var result = await _noteRepository.GetNote(note, userId);
         if (result == null)
         {
             return NotFound();
@@ -58,19 +65,33 @@ public class NoteController: ControllerBase
     [HttpPatch]
     public async Task<IActionResult> UpdateNote(UpdateNoteDto note)
     {
-        var result = await _noteRepository.UpdateNote(note, HttpContext);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+
+        {
+            return Unauthorized();
+        }
+
+        var result = await _noteRepository.UpdateNote(note, userId);
         if (!result)
         {
             return NotFound();
         }
         return Ok(result);
     }
-    
+
     [HttpDelete]
     // [HttpDelete("{id}")] 
     public async Task<IActionResult> DeleteNote(DeleteNoteDto deleteDto)
     {
-        var result = await _noteRepository.DeleteNote(deleteDto.Id, HttpContext);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+
+        {
+            return Unauthorized();
+        }
+
+        var result = await _noteRepository.DeleteNote(deleteDto.Id, userId);
         if (!result)
         {
             return NotFound();
@@ -81,7 +102,14 @@ public class NoteController: ControllerBase
     [HttpPatch("share")]
     public async Task<IActionResult> ShareNote(SharedNoteDto shareDto)
     {
-        var result = await _noteRepository.ShareNote(shareDto, HttpContext);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+
+        {
+            return Unauthorized();
+        }
+
+        var result = await _noteRepository.ShareNote(shareDto, userId);
         if (!result)
         {
             return NotFound();

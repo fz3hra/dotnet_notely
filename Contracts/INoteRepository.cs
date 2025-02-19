@@ -6,15 +6,15 @@ namespace dotnet_notely.Contracts;
 public interface INoteRepository: IGenericManager<Note>
 {
     // create note
-    Task<NoteResponseDto> CreateNote(CreateNoteDto note, HttpContext httpContext);
+    Task<NoteResponseDto> CreateNote(CreateNoteDto note, String userId);
     //get note
-    Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext);
+    Task<List<NoteResponseDto>> GetNote(GetNoteDto note, String userId);
     //update note - allow to make changes and allow for shared user to also make changes - then implement live changes
-    Task<bool> UpdateNote(UpdateNoteDto note, HttpContext httpContext); 
+    Task<bool> UpdateNote(UpdateNoteDto note, String userId); 
     // delete note
-    Task<bool> DeleteNote(int id, HttpContext httpContext);
+    Task<bool> DeleteNote(int id, String userId);
     // delete one or multiple note
     
-    Task<bool> ShareNote(SharedNoteDto sharedNoteDto, HttpContext httpContext);
+    Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId);
     
 }

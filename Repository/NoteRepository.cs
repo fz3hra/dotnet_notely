@@ -28,39 +28,20 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         this._noteHub = noteHub;
     }
 
-    public async Task<NoteResponseDto> CreateNote(CreateNoteDto note, HttpContext context)
+    public async Task<NoteResponseDto> CreateNote(CreateNoteDto note, string userId)
     {
-        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-
-        var user = await _userManager.FindByEmailAsync(userEmail);
-
-        if (user == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
         var mapNote = _mapper.Map<Note>(note);
-        mapNote.CreatedBy = user.Id;
+        mapNote.CreatedBy = userId;
         var result = await _context.Notes.AddAsync(mapNote);
         await _context.SaveChangesAsync();
 
         return _mapper.Map<NoteResponseDto>(mapNote);
     }
 
-    public async Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext)
+    public async Task<List<NoteResponseDto>> GetNote(GetNoteDto note, String userId)
     {
-        var userEmail = httpContext.User.Claims
-            .FirstOrDefault(c => c.Type == ClaimTypes.Email || c.Type == JwtRegisteredClaimNames.Email)?.Value;
-
-        var user = await _userManager.FindByEmailAsync(userEmail);
-
-        if (user == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
         var notes = await _context.Notes.ToListAsync();
-        var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == user.Id).ToList();
+        var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == userId).ToList();
 
 
         if (notes == null)
@@ -72,17 +53,8 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
     }
 
     // add different role for updating a note: editor or viewer only.
-    public async Task<bool> UpdateNote(UpdateNoteDto noteDto, HttpContext context)
+    public async Task<bool> UpdateNote(UpdateNoteDto noteDto, String userId)
     {
-        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-
-        var user = await _userManager.FindByEmailAsync(userEmail);
-
-        if (user == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
         var notes = _context.Notes.FirstOrDefault(notes => notes.Id == noteDto.Id);
         if (notes == null)
         {
@@ -98,16 +70,8 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return true;
     }
 
-    public async Task<bool> DeleteNote(int id, HttpContext httpContext)
+    public async Task<bool> DeleteNote(int id, String userId)
     {
-        var userId = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"User ID from token: {userId}");
-
-        if (userId == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
         var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == id && userNote.CreatedBy == userId);
         Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
 
@@ -120,16 +84,8 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return true;
     }
 
-    public async Task<bool> ShareNote(SharedNoteDto sharedNoteDto, HttpContext httpContext)
+    public async Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId)
     {
-        var userId = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"User ID from token: {userId}");
-
-        if (userId == null)
-        {
-            throw new UnauthorizedAccessException("User not found");
-        }
-
         var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == sharedNoteDto.Id && userNote.CreatedBy == userId);
         Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
 

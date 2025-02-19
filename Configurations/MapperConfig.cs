@@ -6,7 +6,7 @@ using dotnet_notely.ModelDtos.NoteDtos;
 
 namespace dotnet_notely.Configurations;
 
-public class MapperConfig: Profile
+public class MapperConfig : Profile
 {
     public MapperConfig()
     {
