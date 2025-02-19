@@ -77,4 +77,15 @@ public class NoteController: ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpPatch("share")]
+    public async Task<IActionResult> ShareNote(SharedNoteDto shareDto)
+    {
+        var result = await _noteRepository.ShareNote(shareDto, HttpContext);
+        if (!result)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
 }

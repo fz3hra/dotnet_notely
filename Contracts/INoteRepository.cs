@@ -15,4 +15,6 @@ public interface INoteRepository: IGenericManager<Note>
     Task<bool> DeleteNote(int id, HttpContext httpContext);
     // delete one or multiple note
     
+    Task<bool> ShareNote(SharedNoteDto sharedNoteDto, HttpContext httpContext);
+    
 }

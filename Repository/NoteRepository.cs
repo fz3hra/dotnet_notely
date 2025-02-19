@@ -12,8 +12,9 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace dotnet_notely.Repository;
 
-public class NoteRepository: GenericRepository<Note>, INoteRepository {
-    
+public class NoteRepository : GenericRepository<Note>, INoteRepository
+{
+
     private readonly NotelyDbContext _context;
     private readonly IMapper _mapper;
     private readonly UserManager<ApiUser> _userManager;
@@ -37,39 +38,22 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         {
             throw new UnauthorizedAccessException("User not found");
         }
-        
-        var mapNote =  _mapper.Map<Note>(note);
-        mapNote.CreatedBy = user.Id;  
+
+        var mapNote = _mapper.Map<Note>(note);
+        mapNote.CreatedBy = user.Id;
         var result = await _context.Notes.AddAsync(mapNote);
         await _context.SaveChangesAsync();
-        
-        
-        if (note.SharedUsersId?.Any() == true)
-        {
-            foreach (var username in note.SharedUsersId)
-            {
-                if (user != null)
-                {
-                    await _context.NoteShares.AddAsync(new NoteShare 
-                    { 
-                        NoteId = mapNote.Id, 
-                        UserId = user.Id 
-                    });
-                }
-            }
-            await _context.SaveChangesAsync();
-        }
-        
+
         return _mapper.Map<NoteResponseDto>(mapNote);
     }
-    
+
     public async Task<List<NoteResponseDto>> GetNote(GetNoteDto note, HttpContext httpContext)
     {
         var userEmail = httpContext.User.Claims
             .FirstOrDefault(c => c.Type == ClaimTypes.Email || c.Type == JwtRegisteredClaimNames.Email)?.Value;
-        
+
         var user = await _userManager.FindByEmailAsync(userEmail);
-    
+
         if (user == null)
         {
             throw new UnauthorizedAccessException("User not found");
@@ -78,15 +62,16 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         var notes = await _context.Notes.ToListAsync();
         var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == user.Id).ToList();
 
-        
+
         if (notes == null)
         {
             throw new Exception("No notes found");
         }
-        
+
         return _mapper.Map<List<NoteResponseDto>>(createdUserNotes);
     }
 
+    // add different role for updating a note: editor or viewer only.
     public async Task<bool> UpdateNote(UpdateNoteDto noteDto, HttpContext context)
     {
         var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -97,19 +82,19 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         {
             throw new UnauthorizedAccessException("User not found");
         }
-        
-        var notes =  _context.Notes.FirstOrDefault(notes => notes.Id == noteDto.Id);
+
+        var notes = _context.Notes.FirstOrDefault(notes => notes.Id == noteDto.Id);
         if (notes == null)
         {
             throw new Exception("Note not found");
         }
-        
-        if (noteDto.Title != null)  notes.Title = noteDto.Title;
-        if(noteDto.Description != null) notes.Description = noteDto.Description;
+
+        if (noteDto.Title != null) notes.Title = noteDto.Title;
+        if (noteDto.Description != null) notes.Description = noteDto.Description;
         _context.Update(notes);
         await _context.SaveChangesAsync();
         Console.WriteLine($"Broadcasting update for note {noteDto.Id}");
-        await _noteHub.Clients.All.SendAsync("ReceiveMessage",noteDto.Id, noteDto);
+        await _noteHub.Clients.All.SendAsync("ReceiveMessage", noteDto.Id, noteDto);
         return true;
     }
 
@@ -122,16 +107,54 @@ public class NoteRepository: GenericRepository<Note>, INoteRepository {
         {
             throw new UnauthorizedAccessException("User not found");
         }
-        
+
         var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == id && userNote.CreatedBy == userId);
         Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
 
         if (notes == null)
         {
-           throw new Exception("No notes found");
+            throw new Exception("No notes found");
         }
         _context.Notes.Remove(notes);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<bool> ShareNote(SharedNoteDto sharedNoteDto, HttpContext httpContext)
+    {
+        var userId = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"User ID from token: {userId}");
+
+        if (userId == null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+
+        var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == sharedNoteDto.Id && userNote.CreatedBy == userId);
+        Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
+
+        if (notes == null)
+        {
+            throw new Exception("No notes found");
+        }
+
+        var existingShares = await _context.NoteShares
+            .Where(ns => ns.NoteId == notes.Id)
+            .ToListAsync();
+        _context.NoteShares.RemoveRange(existingShares);
+
+        foreach (var sharedUserId in sharedNoteDto.SharedUsersId)
+        {
+            var noteShare = new NoteShare
+            {
+                NoteId = notes.Id,
+                UserId = sharedUserId
+            };
+            await _context.NoteShares.AddAsync(noteShare);
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
+
     }
 }
