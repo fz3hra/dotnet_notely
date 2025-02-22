@@ -3,18 +3,20 @@ using dotnet_notely.ModelDtos.NoteDtos;
 
 namespace dotnet_notely.Contracts;
 
-public interface INoteRepository: IGenericManager<Note>
+public interface INoteRepository : IGenericManager<Note>
 {
     // create note
     Task<NoteResponseDto> CreateNote(CreateNoteDto note, String userId);
     //get note
     Task<List<NoteResponseDto>> GetNote(GetNoteDto note, String userId);
     //update note - allow to make changes and allow for shared user to also make changes - then implement live changes
-    Task<bool> UpdateNote(UpdateNoteDto note, String userId); 
+    Task<bool> UpdateNote(UpdateNoteDto note, String userId);
     // delete note
     Task<bool> DeleteNote(int id, String userId);
     // delete one or multiple note
-    
+
     Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId);
-    
+
+    Task<List<ApiUser>> GetSharedUsers(String userId);
+
 }

@@ -81,7 +81,6 @@ public class NoteController : ControllerBase
     }
 
     [HttpDelete]
-    // [HttpDelete("{id}")] 
     public async Task<IActionResult> DeleteNote(DeleteNoteDto deleteDto)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -115,5 +114,32 @@ public class NoteController : ControllerBase
             return NotFound();
         }
         return Ok(result);
+    }
+    
+    [HttpGet("shared")]
+    public async Task<IActionResult> GetSharedUsers()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        try 
+        {
+            var users = await _noteRepository.GetSharedUsers(userId);
+            return Ok(users.Select(u => new 
+            {
+                Id = u.Id,
+                Email = u.Email,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName
+            }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error retrieving shared users", error = ex.Message });
+        }
     }
 }

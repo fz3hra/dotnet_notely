@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using dotnet_notely.Data;
 
@@ -11,9 +12,11 @@ using dotnet_notely.Data;
 namespace dotnet_notely.Migrations
 {
     [DbContext(typeof(NotelyDbContext))]
-    partial class NotelyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250222191642_AddNoteShareRoles")]
+    partial class AddNoteShareRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

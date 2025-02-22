@@ -60,6 +60,17 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         {
             throw new Exception("Note not found");
         }
+        
+        var hasEditorAccess = notes.CreatedBy == userId || 
+                              await _context.NoteShares.AnyAsync(ns => 
+                                  ns.NoteId == notes.Id && 
+                                  ns.UserId == userId && 
+                                  ns.Role == NoteShareRole.Editor);
+
+        if (!hasEditorAccess)
+        {
+            throw new UnauthorizedAccessException("User does not have editor access to this note");
+        }
 
         if (noteDto.Title != null) notes.Title = noteDto.Title;
         if (noteDto.Description != null) notes.Description = noteDto.Description;
@@ -104,7 +115,8 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
             var noteShare = new NoteShare
             {
                 NoteId = notes.Id,
-                UserId = sharedUserId
+                UserId = sharedUserId,
+                Role = sharedNoteDto.Role
             };
             await _context.NoteShares.AddAsync(noteShare);
         }
@@ -112,5 +124,25 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         await _context.SaveChangesAsync();
         return true;
 
+    }
+    
+    public async Task<List<ApiUser>> GetSharedUsers(String userId)
+    {
+        // Get unique users that the authenticated user has shared notes with
+        var sharedUserIds = await _context.Notes
+            .Where(note => note.CreatedBy == userId) // Notes created by authenticated user
+            .Join(_context.NoteShares,
+                note => note.Id,
+                share => share.NoteId,
+                (note, share) => share.UserId)
+            .Distinct()
+            .ToListAsync();
+
+        // Get the user details for these IDs
+        var sharedUsers = await _userManager.Users
+            .Where(user => sharedUserIds.Contains(user.Id))
+            .ToListAsync();
+
+        return sharedUsers;
     }
 }
