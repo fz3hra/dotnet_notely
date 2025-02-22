@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "aDmPH40fnxbDTVd7pOTtb3mc2mnAwMpSfrsTGSGpy3w=",
+  "Source": "dotnet_notely",
+  "BasePath": "_content/dotnet_notely",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "dotnet_notely/wwwroot",
+      "Source": "dotnet_notely",
+      "ContentRoot": "/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/wwwroot/",
+      "BasePath": "_content/dotnet_notely",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/wwwroot/signalr-test.html",
+      "SourceId": "dotnet_notely",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/fz3hra/Desktop/code/dotnet_notely/dotnet_notely/wwwroot/",
+      "BasePath": "_content/dotnet_notely",
+      "RelativePath": "signalr-test.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/signalr-test.html"
+    }
+  ]
+}

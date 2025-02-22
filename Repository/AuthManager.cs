@@ -51,16 +51,17 @@ public class AuthManager : IAuthManager
         {
             return null;
         }
-        
+
         bool isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
         if (!isPasswordValid) return null;
-      
-            // generate token then return data response.
-            var token = await GenerateToken(user);
-            return new AuthResponseDto
-            {
-                UserId=user.Id, Token=token
-            };
+
+        // generate token then return data response.
+        var token = await GenerateToken(user);
+        return new AuthResponseDto
+        {
+            UserId = user.Id,
+            Token = token
+        };
     }
 
     // generate token for user:
@@ -68,17 +69,17 @@ public class AuthManager : IAuthManager
     {
         // create signing key
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
-        
+
         // create crenditals
         var credentiais = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        
+
         // gather user information aka claims   
         var roles = await _userManager.GetRolesAsync(user);
-        
+
         var roleClaims = roles.Select((role) => new Claim(ClaimTypes.Role, role));
-        
+
         var userClaims = await _userManager.GetClaimsAsync(user);
-        
+
         // generate new Claims:
         var claims = new List<Claim>
         {
@@ -87,7 +88,7 @@ public class AuthManager : IAuthManager
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
         }.Union(userClaims).Union(roleClaims);
-        
+
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
