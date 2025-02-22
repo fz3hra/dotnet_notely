@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 var connectionString = builder.Configuration.GetConnectionString("NotelyDbConnectionString");
 builder.Services.AddDbContext<NotelyDbContext>(options => options.UseSqlServer(connectionString));
@@ -58,6 +59,24 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
+
+try 
+{
+   var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    
+   using (var scope = app.Services.CreateScope())
+   {
+      var context = scope.ServiceProvider.GetRequiredService<NotelyDbContext>();
+      await context.Database.MigrateAsync();
+      logger.LogInformation("Database migrations completed successfully");
+   }
+}
+catch (Exception ex)
+{
+   var logger = app.Services.GetRequiredService<ILogger<Program>>();
+   logger.LogError(ex, "An error occurred while initializing the database");
+   throw;
+}
 
 if (app.Environment.IsDevelopment()) {
    app.UseSwagger();
