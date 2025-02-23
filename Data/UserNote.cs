@@ -14,4 +14,5 @@ public class NoteShare
     public string UserId { get; set; }
     public int NoteId { get; set; }
     public NoteShareRole Role { get; set; }
+    public Note Note { get; set; }
 }

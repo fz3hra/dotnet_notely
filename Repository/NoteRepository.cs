@@ -38,18 +38,73 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return _mapper.Map<NoteResponseDto>(mapNote);
     }
 
+    // public async Task<List<NoteResponseDto>> GetNote(String userId)
+    // {
+    //     var notes = await _context.Notes.ToListAsync();
+    //     var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == userId).ToList();
+    //
+    //
+    //     if (notes == null)
+    //     {
+    //         throw new Exception("No notes found");
+    //     }
+    //
+    //     return _mapper.Map<List<NoteResponseDto>>(createdUserNotes);
+    // }
     public async Task<List<NoteResponseDto>> GetNote(String userId)
     {
-        var notes = await _context.Notes.ToListAsync();
-        var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == userId).ToList();
+        // Get notes created by the user
+        var userNotes = await _context.Notes
+            .Where(note => note.CreatedBy == userId)
+            .Select(note => new NoteResponseDto
+            {
+                Id = note.Id,
+                Title = note.Title,
+                Description = note.Description,
+                CreatedDate = note.CreatedAt,
+                CreatedBy = note.CreatedBy,
+                UserRole = NoteShareRole.Editor  // Creator has full rights
+            })
+            .ToListAsync();
 
+        // Get notes shared with the user
+        var sharedNotes = await _context.NoteShares
+            .Where(share => share.UserId == userId)
+            .Select(share => new NoteResponseDto
+            {
+                Id = share.Note.Id,
+                Title = share.Note.Title,
+                Description = share.Note.Description,
+                CreatedDate = share.Note.CreatedAt,
+                CreatedBy = share.Note.CreatedBy,
+                UserRole = share.Role
+            })
+            .ToListAsync();
 
-        if (notes == null)
+        // Combine both lists
+        var allNotes = userNotes.Concat(sharedNotes).ToList();
+
+        // For each note, get the sharing information
+        foreach (var note in allNotes)
         {
-            throw new Exception("No notes found");
+            var sharedUsers = await _context.NoteShares
+                .Where(share => share.NoteId == note.Id)
+                .Join(_context.Users,
+                    share => share.UserId,
+                    user => user.Id,
+                    (share, user) => new SharedUserInfo
+                    {
+                        UserId = user.Id,
+                        Email = user.Email,
+                        UserName = user.UserName,
+                        Role = share.Role
+                    })
+                .ToListAsync();
+
+            note.SharedWith = sharedUsers;
         }
 
-        return _mapper.Map<List<NoteResponseDto>>(createdUserNotes);
+        return allNotes;
     }
 
     // add different role for updating a note: editor or viewer only.
