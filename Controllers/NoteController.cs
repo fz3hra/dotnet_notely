@@ -46,7 +46,7 @@ public class NoteController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetNote(GetNoteDto note)
+    public async Task<IActionResult> GetNote()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
