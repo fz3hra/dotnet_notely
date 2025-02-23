@@ -45,11 +45,11 @@ builder.Services.AddAuthorization(options => {
 });
 
 builder.Services.AddCors(options => {
-   options.AddPolicy("CorsPolicy", builder => 
-       builder.SetIsOriginAllowed(_ => true)
-       .AllowAnyMethod()
-       .AllowAnyHeader()
-       .AllowCredentials());
+   options.AddPolicy("AllowAll", 
+      builder => builder
+         .AllowAnyOrigin()
+         .AllowAnyMethod()
+         .AllowAnyHeader());
 });
 
 builder.Services.AddSignalR();
@@ -84,8 +84,9 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseStaticFiles();
+app.UseCors("AllowAll");
 app.UseRouting(); 
-app.UseCors("CorsPolicy");
+// app.UseCors("CorsPolicy");
 // app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
