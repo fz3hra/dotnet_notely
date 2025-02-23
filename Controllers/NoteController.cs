@@ -54,7 +54,7 @@ public class NoteController : ControllerBase
         {
             return Unauthorized();
         }
-        var result = await _noteRepository.GetNote(note, userId);
+        var result = await _noteRepository.GetNote(userId);
         if (result == null)
         {
             return NotFound();

@@ -8,7 +8,7 @@ public interface INoteRepository : IGenericManager<Note>
     // create note
     Task<NoteResponseDto> CreateNote(CreateNoteDto note, String userId);
     //get note
-    Task<List<NoteResponseDto>> GetNote(GetNoteDto note, String userId);
+    Task<List<NoteResponseDto>> GetNote(String userId);
     //update note - allow to make changes and allow for shared user to also make changes - then implement live changes
     Task<bool> UpdateNote(UpdateNoteDto note, String userId);
     // delete note

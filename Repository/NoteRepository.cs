@@ -38,7 +38,7 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return _mapper.Map<NoteResponseDto>(mapNote);
     }
 
-    public async Task<List<NoteResponseDto>> GetNote(GetNoteDto note, String userId)
+    public async Task<List<NoteResponseDto>> GetNote(String userId)
     {
         var notes = await _context.Notes.ToListAsync();
         var createdUserNotes = notes.Where(createdUserNote => createdUserNote.CreatedBy == userId).ToList();
