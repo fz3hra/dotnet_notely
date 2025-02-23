@@ -1,13 +1,15 @@
+using System.Security.Claims;
 using Azure;
 using dotnet_notely.Contracts;
 using dotnet_notely.ModelDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_notely.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController: ControllerBase
+public class AuthController : ControllerBase
 {
     private readonly IAuthManager _authManager;
 
@@ -15,7 +17,7 @@ public class AuthController: ControllerBase
     {
         this._authManager = authManager;
     }
-    
+
     // POST: api/Account/Register
     [HttpPost]
     [Route("register")]
@@ -36,7 +38,7 @@ public class AuthController: ControllerBase
         }
         return Ok();
     }
-    
+
     [HttpPost]
     [Route("login")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,5 +52,28 @@ public class AuthController: ControllerBase
             return Unauthorized();
         }
         return Ok(res);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [Route("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> Logout()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _authManager.Logout(userId);
+        if (!result)
+        {
+            return StatusCode(500, "An error occurred during logout");
+        }
+
+        return Ok(new { message = "Logged out successfully" });
     }
 }

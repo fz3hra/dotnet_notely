@@ -8,4 +8,5 @@ public interface IAuthManager
 {
     Task<IEnumerable<IdentityError>> Register(RegisterDto registerDto);
     Task<AuthResponseDto> Login(LoginDto loginDto);
+    Task<bool> Logout(string userId);
 }

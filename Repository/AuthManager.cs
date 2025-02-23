@@ -18,7 +18,10 @@ public class AuthManager : IAuthManager
     private readonly UserManager<ApiUser> _userManager;
     private readonly IConfiguration _configuration;
 
-    public AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration configuration)
+    public AuthManager(IMapper mapper,
+        UserManager<ApiUser> userManager,
+        IConfiguration configuration
+    )
     {
         this._mapper = mapper;
         this._userManager = userManager;
@@ -97,5 +100,18 @@ public class AuthManager : IAuthManager
             signingCredentials: credentiais
         );
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<bool> Logout(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return false;
+        }
+
+        await _userManager.UpdateSecurityStampAsync(user);
+
+        return true;
     }
 }
