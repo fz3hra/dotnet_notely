@@ -22,5 +22,7 @@ public interface INoteRepository : IGenericManager<Note>
     // Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId);
 
     Task<List<ApiUser>> GetSharedUsers(String userId);
+    
+    Task<List<ApiUser>> GetNoteSharedUsers(int noteId, String userId);
 
 }

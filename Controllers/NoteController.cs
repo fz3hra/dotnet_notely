@@ -115,7 +115,7 @@ public class NoteController : ControllerBase
     //     }
     //     return Ok(result);
     // }
-    
+
     [HttpPost("share/{noteId}")]
     public async Task<IActionResult> AddNoteShare(int noteId, AddNoteShareDto shareDto)
     {
@@ -154,7 +154,7 @@ public class NoteController : ControllerBase
         var result = await _noteRepository.UpdateNoteShareRole(noteId, sharedUserId, roleDto.Role, userId);
         return Ok(result);
     }
-    
+
     [HttpGet("shared")]
     public async Task<IActionResult> GetSharedUsers()
     {
@@ -164,10 +164,37 @@ public class NoteController : ControllerBase
             return Unauthorized();
         }
 
-        try 
+        try
         {
             var users = await _noteRepository.GetSharedUsers(userId);
-            return Ok(users.Select(u => new 
+            return Ok(users.Select(u => new
+            {
+                Id = u.Id,
+                Email = u.Email,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName
+            }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error retrieving shared users", error = ex.Message });
+        }
+    }
+
+    [HttpGet("shared/{noteId}")]
+    public async Task<IActionResult> GetNoteSharedUsers(int noteId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var users = await _noteRepository.GetNoteSharedUsers(noteId, userId);
+            return Ok(users.Select(u => new
             {
                 Id = u.Id,
                 Email = u.Email,
