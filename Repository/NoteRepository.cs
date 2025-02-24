@@ -273,7 +273,7 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return sharedUsers;
     }
 
-    public async Task<List<ApiUser>> GetNoteSharedUsers(int noteId, String userId)
+    public async Task<List<SharedUserInfo>> GetNoteSharedUsers(int noteId, String userId)
     {
         var noteExists = await _context.Notes.AnyAsync(n => n.Id == noteId &&
                                                             (n.CreatedBy == userId ||
@@ -284,14 +284,20 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
             throw new Exception("Note not found or you don't have permission to access it");
         }
 
-        var sharedUserIds = await _context.NoteShares
+        var sharedUsers = await _context.NoteShares
             .Where(share => share.NoteId == noteId)
-            .Select(share => share.UserId)
-            .Distinct()
-            .ToListAsync();
-
-        var sharedUsers = await _userManager.Users
-            .Where(user => sharedUserIds.Contains(user.Id))
+            .Join(_context.Users,
+                share => share.UserId,
+                user => user.Id,
+                (share, user) => new SharedUserInfo
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = share.Role
+                })
             .ToListAsync();
 
         return sharedUsers;

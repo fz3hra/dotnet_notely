@@ -194,14 +194,7 @@ public class NoteController : ControllerBase
         try
         {
             var users = await _noteRepository.GetNoteSharedUsers(noteId, userId);
-            return Ok(users.Select(u => new
-            {
-                Id = u.Id,
-                Email = u.Email,
-                UserName = u.UserName,
-                FirstName = u.FirstName,
-                LastName = u.LastName
-            }));
+            return Ok(users); 
         }
         catch (Exception ex)
         {

@@ -23,6 +23,6 @@ public interface INoteRepository : IGenericManager<Note>
 
     Task<List<ApiUser>> GetSharedUsers(String userId);
     
-    Task<List<ApiUser>> GetNoteSharedUsers(int noteId, String userId);
+    Task<List<SharedUserInfo>> GetNoteSharedUsers(int noteId, String userId);
 
 }
