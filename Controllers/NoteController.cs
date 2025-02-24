@@ -98,21 +98,60 @@ public class NoteController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("share")]
-    public async Task<IActionResult> ShareNote(SharedNoteDto shareDto)
+    // [HttpPatch("share")]
+    // public async Task<IActionResult> ShareNote(SharedNoteDto shareDto)
+    // {
+    //     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    //     if (string.IsNullOrEmpty(userId))
+    //
+    //     {
+    //         return Unauthorized();
+    //     }
+    //
+    //     var result = await _noteRepository.ShareNote(shareDto, userId);
+    //     if (!result)
+    //     {
+    //         return NotFound();
+    //     }
+    //     return Ok(result);
+    // }
+    
+    [HttpPost("share/{noteId}")]
+    public async Task<IActionResult> AddNoteShare(int noteId, AddNoteShareDto shareDto)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
-
         {
             return Unauthorized();
         }
 
-        var result = await _noteRepository.ShareNote(shareDto, userId);
-        if (!result)
+        var result = await _noteRepository.AddNoteShare(noteId, shareDto.UserId, shareDto.Role, userId);
+        return Ok(result);
+    }
+
+    [HttpDelete("share/{noteId}/{sharedUserId}")]
+    public async Task<IActionResult> RemoveNoteShare(int noteId, string sharedUserId)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
         {
-            return NotFound();
+            return Unauthorized();
         }
+
+        var result = await _noteRepository.RemoveNoteShare(noteId, sharedUserId, userId);
+        return Ok(result);
+    }
+
+    [HttpPatch("share/{noteId}/{sharedUserId}")]
+    public async Task<IActionResult> UpdateNoteShareRole(int noteId, string sharedUserId, UpdateShareRoleDto roleDto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _noteRepository.UpdateNoteShareRole(noteId, sharedUserId, roleDto.Role, userId);
         return Ok(result);
     }
     

@@ -150,36 +150,108 @@ public class NoteRepository : GenericRepository<Note>, INoteRepository
         return true;
     }
 
-    public async Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId)
+    // public async Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId)
+    // {
+    //     var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == sharedNoteDto.Id && userNote.CreatedBy == userId);
+    //     Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
+    //
+    //     if (notes == null)
+    //     {
+    //         throw new Exception("No notes found");
+    //     }
+    //
+    //     var existingShares = await _context.NoteShares
+    //         .Where(ns => ns.NoteId == notes.Id)
+    //         .ToListAsync();
+    //     _context.NoteShares.RemoveRange(existingShares);
+    //
+    //     foreach (var sharedUserId in sharedNoteDto.SharedUsersId)
+    //     {
+    //         var noteShare = new NoteShare
+    //         {
+    //             NoteId = notes.Id,
+    //             UserId = sharedUserId,
+    //             Role = sharedNoteDto.Role
+    //         };
+    //         await _context.NoteShares.AddAsync(noteShare);
+    //     }
+    //
+    //     await _context.SaveChangesAsync();
+    //     return true;
+    //
+    // }
+    
+    public async Task<bool> AddNoteShare(int noteId, string sharedUserId, NoteShareRole role, string ownerId)
+{
+    var note = await _context.Notes.FirstOrDefaultAsync(n => n.Id == noteId && n.CreatedBy == ownerId);
+    if (note == null)
     {
-        var notes = _context.Notes.FirstOrDefault((userNote) => userNote.Id == sharedNoteDto.Id && userNote.CreatedBy == userId);
-        Console.WriteLine($"Note found: {notes?.Id}, CreatedBy: {notes?.CreatedBy}");
-
-        if (notes == null)
-        {
-            throw new Exception("No notes found");
-        }
-
-        var existingShares = await _context.NoteShares
-            .Where(ns => ns.NoteId == notes.Id)
-            .ToListAsync();
-        _context.NoteShares.RemoveRange(existingShares);
-
-        foreach (var sharedUserId in sharedNoteDto.SharedUsersId)
-        {
-            var noteShare = new NoteShare
-            {
-                NoteId = notes.Id,
-                UserId = sharedUserId,
-                Role = sharedNoteDto.Role
-            };
-            await _context.NoteShares.AddAsync(noteShare);
-        }
-
-        await _context.SaveChangesAsync();
-        return true;
-
+        throw new Exception("Note not found or you don't have permission");
     }
+
+    var existingShare = await _context.NoteShares
+        .FirstOrDefaultAsync(ns => ns.NoteId == noteId && ns.UserId == sharedUserId);
+    
+    if (existingShare != null)
+    {
+        existingShare.Role = role;
+    }
+    else
+    {
+        var noteShare = new NoteShare
+        {
+            NoteId = noteId,
+            UserId = sharedUserId,
+            Role = role
+        };
+        await _context.NoteShares.AddAsync(noteShare);
+    }
+
+    await _context.SaveChangesAsync();
+    return true;
+}
+
+public async Task<bool> RemoveNoteShare(int noteId, string sharedUserId, string ownerId)
+{
+    var note = await _context.Notes.FirstOrDefaultAsync(n => n.Id == noteId && n.CreatedBy == ownerId);
+    if (note == null)
+    {
+        throw new Exception("Note not found or you don't have permission");
+    }
+
+    var noteShare = await _context.NoteShares
+        .FirstOrDefaultAsync(ns => ns.NoteId == noteId && ns.UserId == sharedUserId);
+    
+    if (noteShare == null)
+    {
+        return false; 
+    }
+
+    _context.NoteShares.Remove(noteShare);
+    await _context.SaveChangesAsync();
+    return true;
+}
+
+public async Task<bool> UpdateNoteShareRole(int noteId, string sharedUserId, NoteShareRole role, string ownerId)
+{
+    var note = await _context.Notes.FirstOrDefaultAsync(n => n.Id == noteId && n.CreatedBy == ownerId);
+    if (note == null)
+    {
+        throw new Exception("Note not found or you don't have permission");
+    }
+
+    var noteShare = await _context.NoteShares
+        .FirstOrDefaultAsync(ns => ns.NoteId == noteId && ns.UserId == sharedUserId);
+    
+    if (noteShare == null)
+    {
+        return false; 
+    }
+
+    noteShare.Role = role;
+    await _context.SaveChangesAsync();
+    return true;
+}
     
     public async Task<List<ApiUser>> GetSharedUsers(String userId)
     {

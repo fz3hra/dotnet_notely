@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:8080");
+// builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 var connectionString = builder.Configuration.GetConnectionString("NotelyDbConnectionString");
 builder.Services.AddDbContext<NotelyDbContext>(options => options.UseSqlServer(connectionString));
@@ -21,6 +21,7 @@ builder.Services.AddIdentityCore<ApiUser>()
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthentication(options => {
    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

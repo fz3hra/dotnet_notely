@@ -14,8 +14,12 @@ public interface INoteRepository : IGenericManager<Note>
     // delete note
     Task<bool> DeleteNote(int id, String userId);
     // delete one or multiple note
+    
+    Task<bool> AddNoteShare(int noteId, string sharedUserId, NoteShareRole role, string ownerId);
+    Task<bool> RemoveNoteShare(int noteId, string sharedUserId, string ownerId);
+    Task<bool> UpdateNoteShareRole(int noteId, string sharedUserId, NoteShareRole role, string ownerId);
 
-    Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId);
+    // Task<bool> ShareNote(SharedNoteDto sharedNoteDto, String userId);
 
     Task<List<ApiUser>> GetSharedUsers(String userId);
 
