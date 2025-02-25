@@ -14,5 +14,6 @@ public class MapperConfig : Profile
         CreateMap<CreateNoteDto, Note>().ReverseMap();
         CreateMap<Note, NoteResponseDto>();
         CreateMap<CreateNoteDto, NoteResponseDto>();
+        CreateMap<ApiUser, UserProfileDto>();
     }
 }

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using dotnet_notely.Contracts;
+using dotnet_notely.ModelDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,30 @@ public class UserController: ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, new { message = "Error searching users", error = ex.Message });
+        }
+    }
+    
+    //
+    [HttpGet("profile")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<UserProfileDto>> GetUserProfile()
+    {
+        try
+        {
+            var userProfile = await _userRepository.GetCurrentUserProfile();
+            if (userProfile == null)
+            {
+                return NotFound("User profile not found");
+            }
+
+            return Ok(userProfile);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
 }

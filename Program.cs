@@ -21,6 +21,7 @@ builder.Services.AddIdentityCore<ApiUser>()
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthentication(options => {
